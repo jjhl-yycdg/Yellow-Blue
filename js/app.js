@@ -1,5 +1,7 @@
 // 使用全局 DB（db.js 在 file:// 场景下被作为普通脚本加载并挂载到 window.DB）
 const DB = window.DB;
+// 上传端点（可由页面在 window.UPLOAD_ENDPOINT 中覆盖），默认与页面同源的 /upload
+const UPLOAD_ENDPOINT = (window.UPLOAD_ENDPOINT && typeof window.UPLOAD_ENDPOINT === 'string') ? window.UPLOAD_ENDPOINT : '/upload';
 
 // 简单的 i18n（中/英）
 const I18N = {
@@ -312,7 +314,9 @@ async function handleFiles(files){
     let uploadedUrl = null;
     try{
       const fd = new FormData(); fd.append('file', blob, f.name);
-      const res = await fetch('/upload', { method: 'POST', body: fd });
+  const headers = {};
+  if(window.UPLOAD_KEY) headers['x-upload-key'] = window.UPLOAD_KEY;
+  const res = await fetch(UPLOAD_ENDPOINT, { method: 'POST', body: fd, headers });
       if(res.ok){ const j = await res.json(); if(j && j.url) uploadedUrl = j.url; }
     }catch(e){ /* ignore upload errors and fallback to local blob */ }
 
