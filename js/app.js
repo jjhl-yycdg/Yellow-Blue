@@ -399,6 +399,44 @@ function showHome(){
   // 兜底：无论从哪里进入主页，都确保主页布局可见
   setLayoutDetail(false);
   mainView.innerHTML = '';
+  // 拉取并渲染公共画廊（来自上传服务器 / Worker 的 /list 接口）
+  fetchPublicGallery().catch(err=>{ /* fail silently */ console.debug('public gallery load failed', err); });
+}
+
+function getPublicListEndpoint(){
+  // derive list endpoint from UPLOAD_ENDPOINT origin if not explicitly set
+  if(window.PUBLIC_LIST_ENDPOINT && typeof window.PUBLIC_LIST_ENDPOINT === 'string') return window.PUBLIC_LIST_ENDPOINT;
+  try{
+    const u = new URL(UPLOAD_ENDPOINT, location.href);
+    return u.origin + '/list';
+  }catch(e){ return '/list'; }
+}
+
+async function fetchPublicGallery(){
+  const endpoint = getPublicListEndpoint();
+  try{
+    const res = await fetch(endpoint, { method: 'GET' });
+    if(!res.ok) return;
+    const j = await res.json();
+    if(!j || !Array.isArray(j.urls)) return;
+    // 渲染一个简单的公共画廊到主页下方
+    const section = document.createElement('div'); section.id = 'public-gallery'; section.className = 'public-gallery';
+    section.innerHTML = `<h2>Public Gallery</h2><div class="public-grid"></div>`;
+    const grid = section.querySelector('.public-grid');
+    j.urls.forEach(url =>{
+      const card = document.createElement('div'); card.className = 'card';
+      const img = document.createElement('img'); img.src = url; img.alt = '';
+      img.onerror = function(){ this.alt = 'Image load failed'; };
+      // 点击直接打开图片
+      img.addEventListener('click', ()=>{ window.open(url); });
+      card.appendChild(img);
+      grid.appendChild(card);
+    });
+    // 在 albums-list 后插入
+    const albumsList = document.getElementById('albums-list');
+    if(albumsList && albumsList.parentNode){ albumsList.parentNode.insertBefore(section, albumsList.nextSibling); }
+    else mainView.appendChild(section);
+  }catch(err){ console.error('fetchPublicGallery error', err); }
 }
 
 async function showAlbum(albumId){
