@@ -67,6 +67,25 @@ async function handleRequest(request){
     }
   }
 
+  // DELETE /uploads/<key> -> delete object from R2
+  if(request.method === 'DELETE' && url.pathname.startsWith('/uploads/')){
+    // simple auth: check header x-upload-key if UPLOAD_KEY is set
+    const provided = request.headers.get('x-upload-key') || '';
+    if(typeof UPLOAD_KEY !== 'undefined' && UPLOAD_KEY && provided !== UPLOAD_KEY){
+      return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: jsonCorsHeaders() });
+    }
+    const key = decodeURIComponent(url.pathname.replace('/uploads/',''));
+    try{
+      // check existence
+      const obj = await IMAGES.get(key);
+      if(!obj) return new Response(JSON.stringify({ error: 'not_found' }), { status: 404, headers: jsonCorsHeaders() });
+      await IMAGES.delete(key);
+      return new Response(JSON.stringify({ ok: true, key }), { status: 200, headers: jsonCorsHeaders() });
+    }catch(err){
+      return new Response(JSON.stringify({ error: 'delete_failed', detail: String(err) }), { status: 500, headers: jsonCorsHeaders() });
+    }
+  }
+
   // Helpful root response for quick preview/testing
   if (request.method === 'GET' && url.pathname === '/') {
     return new Response('Worker OK — upload endpoint: POST /upload', { status: 200, headers: corsHeaders() });
