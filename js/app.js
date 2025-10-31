@@ -559,6 +559,10 @@ async function showAlbum(albumId){
       const rec = await DB.get('images', id);
       if(!rec) continue;
       const oldAlb = await DB.get('albums', rec.albumId);
+      // 尝试删除远端对象
+      if(rec && rec.url){
+        try{ await remoteDeleteUrl(rec.url); }catch(e){ console.warn('batch remote delete failed', e); }
+      }
       await DB.del('images', id);
       if(oldAlb && oldAlb.previewImageId === id){
         const others = await DB.getByIndex('images', 'albumId', rec.albumId);
@@ -730,6 +734,18 @@ async function openImageModal(imageId){
   delBtn.addEventListener('click', async ()=>{
     if(!confirm(t('image.delete.confirm'))) return;
     try{
+      // 如果图片有远程 URL，尝试删除远端对象
+      if(rec && rec.url){
+        try{
+          const deleted = await remoteDeleteUrl(rec.url);
+          if(!deleted){
+            if(!confirm('远端删除失败，仍要从本地删除记录吗？')){ return; }
+          }
+        }catch(e){
+          console.error('remote delete error', e);
+          if(!confirm('尝试删除远端失败，仍要从本地删除记录吗？')){ return; }
+        }
+      }
       await DB.del('images', rec.id);
       // 如果是相册预览图，则尝试更新相册预览
       const alb = await DB.get('albums', rec.albumId);
@@ -858,6 +874,10 @@ async function showArtist(artistId){
       const rec = await DB.get('images', id);
       if(!rec) continue;
       const oldAlb = await DB.get('albums', rec.albumId);
+      // 尝试删除远端对象
+      if(rec && rec.url){
+        try{ await remoteDeleteUrl(rec.url); }catch(e){ console.warn('batch remote delete failed', e); }
+      }
       await DB.del('images', id);
       if(oldAlb && oldAlb.previewImageId === id){
         const others = await DB.getByIndex('images', 'albumId', rec.albumId);
@@ -959,6 +979,19 @@ function blobToDataURL(blob){
   return new Promise((resolve)=>{
     const fr = new FileReader();fr.onload = ()=>resolve(fr.result);fr.readAsDataURL(blob);
   });
+}
+
+// Try to delete a remote uploaded object given its public URL. Returns true if deleted.
+async function remoteDeleteUrl(url){
+  try{
+    const u = new URL(url);
+    const key = decodeURIComponent(u.pathname.replace('/uploads/',''));
+    const delUrl = u.origin + '/uploads/' + encodeURIComponent(key);
+    const headers = {};
+    if(window.UPLOAD_KEY) headers['x-upload-key'] = window.UPLOAD_KEY;
+    const res = await fetch(delUrl, { method: 'DELETE', headers });
+    return res.ok;
+  }catch(err){ console.error('remoteDeleteUrl error', err); return false; }
 }
 
 init();
