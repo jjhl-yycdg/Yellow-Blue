@@ -67,6 +67,36 @@ async function handleRequest(request){
     }
   }
 
+  // Helpful root response for quick preview/testing
+  if (request.method === 'GET' && url.pathname === '/') {
+    return new Response('Worker OK — upload endpoint: POST /upload', { status: 200, headers: corsHeaders() });
+  }
+
+  // POST /selftest -> write a small text object to R2 (used for in-dashboard testing)
+  if (request.method === 'POST' && url.pathname === '/selftest'){
+    try{
+      const j = await request.json();
+      const key = j && j.key ? String(j.key) : ('selftest_' + Date.now() + '.txt');
+      const value = (j && typeof j.value !== 'undefined') ? String(j.value) : 'hello from worker selftest';
+      await IMAGES.put(key, value, { httpMetadata: { contentType: 'text/plain' } });
+      return new Response(JSON.stringify({ ok: true, key }), { status: 200, headers: jsonCorsHeaders() });
+    }catch(err){
+      return new Response(JSON.stringify({ error: 'selftest_failed', detail: String(err) }), { status: 500, headers: jsonCorsHeaders() });
+    }
+  }
+
+  // GET /selftest-list -> list objects in the bound R2 bucket (limited)
+  if (request.method === 'GET' && url.pathname === '/selftest-list'){
+    try{
+      // list a small page of objects
+      const list = await IMAGES.list({ limit: 100 });
+      const keys = (list && list.objects) ? list.objects.map(o=>o.key) : [];
+      return new Response(JSON.stringify({ objects: keys }), { status: 200, headers: jsonCorsHeaders() });
+    }catch(err){
+      return new Response(JSON.stringify({ error: 'list_failed', detail: String(err) }), { status: 500, headers: jsonCorsHeaders() });
+    }
+  }
+
   // fallback: 404
   return new Response('Not found', { status: 404 });
 }
