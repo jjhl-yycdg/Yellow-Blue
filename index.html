@@ -77,7 +77,15 @@
     </div>
   </div>
 
-  <script src="js/db.js"></script>
-  <script src="js/app.js"></script>
+  <!-- Upload endpoint configuration: replace the placeholder with your deployed Worker or upload server URL -->
+  <script>
+    // Example: 'https://abcd1234.workers.dev/upload' or 'https://your-app.onrender.com/upload'
+    // Replace the URL below with your actual upload endpoint after you deploy the Worker.
+  window.UPLOAD_ENDPOINT = 'https://falling-shadow-aa9a.2512008347.workers.dev/upload';
+    // Optional: if you configured a simple upload key on the Worker, set it here (not secure for production):
+    // window.UPLOAD_KEY = 'replace_with_upload_key_if_used';
+  </script>
+  <script src="./js/db.js"></script>
+  <script src="./js/app.js"></script>
 </body>
 </html>
