@@ -97,6 +97,19 @@ async function handleRequest(request){
     }
   }
 
+  // GET /list -> public list of uploaded object URLs (for public gallery)
+  if (request.method === 'GET' && url.pathname === '/list'){
+    try{
+      const list = await IMAGES.list({ limit: 1000 });
+      const keys = (list && list.objects) ? list.objects.map(o=>o.key) : [];
+      const origin = (typeof ORIGIN_BASE !== 'undefined' && ORIGIN_BASE) ? ORIGIN_BASE.replace(/\/$/, '') : (new URL(request.url)).origin;
+      const urls = keys.map(k => `${origin}/uploads/${encodeURIComponent(k)}`);
+      return new Response(JSON.stringify({ urls }), { status: 200, headers: jsonCorsHeaders() });
+    }catch(err){
+      return new Response(JSON.stringify({ error: 'list_failed', detail: String(err) }), { status: 500, headers: jsonCorsHeaders() });
+    }
+  }
+
   // fallback: 404
   return new Response('Not found', { status: 404 });
 }
