@@ -318,7 +318,11 @@ async function handleFiles(files){
   if(window.UPLOAD_KEY) headers['x-upload-key'] = window.UPLOAD_KEY;
   const res = await fetch(UPLOAD_ENDPOINT, { method: 'POST', body: fd, headers });
       if(res.ok){ const j = await res.json(); if(j && j.url) uploadedUrl = j.url; }
-    }catch(e){ /* ignore upload errors and fallback to local blob */ }
+    }catch(e){
+      // Log upload errors and notify the user, but continue to save blob locally as fallback
+      console.error('upload failed', e);
+      try{ alert(t('error.upload')); }catch(_){}
+    }
 
     const imgRecord = {filename:f.name,blob:blob,albumId:albumId,artistId:artistId,artistName:artistName,createdAt:Date.now(),desc:'', url: uploadedUrl};
     const imageId = await DB.add('images', imgRecord);
@@ -338,13 +342,16 @@ async function renderAlbums(){
     // 如果有封面，作为背景图
     if(a.previewImageId){
       const rec = await DB.get('images', a.previewImageId);
-      const url = rec && rec.url ? rec.url : await blobToDataURL(rec.blob);
-      el.classList.add('has-cover');
-      // 同时设置 CSS 变量与元素背景，确保不同浏览器都能显示
-      el.style.setProperty('--cover', `url("${url}")`);
-  el.style.backgroundImage = `url("${url}")`;
-      el.style.backgroundSize = 'cover';
-      el.style.backgroundPosition = 'center';
+      let url = rec && rec.url ? rec.url : null;
+      if(!url && rec && rec.blob) url = await blobToDataURL(rec.blob);
+      if(url){
+        el.classList.add('has-cover');
+        // 同时设置 CSS 变量与元素背景，确保不同浏览器都能显示
+        el.style.setProperty('--cover', `url("${url}")`);
+        el.style.backgroundImage = `url("${url}")`;
+        el.style.backgroundSize = 'cover';
+        el.style.backgroundPosition = 'center';
+      }
     }
     const meta = document.createElement('div');
     meta.className = 'meta';
@@ -437,7 +444,14 @@ async function showAlbum(albumId){
       const card = document.createElement('div');card.className='card';
       card.dataset.id = imgRec.id;
   const im = document.createElement('img');
-  im.src = imgRec && imgRec.url ? imgRec.url : await blobToDataURL(imgRec.blob);
+  // Prefer remote URL, otherwise use blob fallback. If remote fails to load, try blob.
+  im.src = imgRec && imgRec.url ? imgRec.url : (imgRec && imgRec.blob ? await blobToDataURL(imgRec.blob) : '');
+  im.onerror = async function(){
+    try{
+      if(imgRec && imgRec.blob){ this.onerror = null; this.src = await blobToDataURL(imgRec.blob); }
+      else this.alt = 'Image failed to load';
+    }catch(err){ console.error('img onerror fallback failed', err); }
+  };
       // 相册页面不显示图片名称与画师名，只展示更大的缩略图
       card.appendChild(im);
       const check = document.createElement('div'); check.className = 'check'; card.appendChild(check);
@@ -577,7 +591,12 @@ async function openImageModal(imageId){
   const rec = await DB.get('images', imageId);
   if(!rec) return;
   modalBody.innerHTML = '';
-  const img = document.createElement('img');img.src = rec && rec.url ? rec.url : await blobToDataURL(rec.blob);img.style.maxWidth='100%';
+  const img = document.createElement('img');
+  img.src = rec && rec.url ? rec.url : (rec && rec.blob ? await blobToDataURL(rec.blob) : '');
+  img.style.maxWidth='100%';
+  img.onerror = async function(){
+    try{ if(rec && rec.blob){ this.onerror = null; this.src = await blobToDataURL(rec.blob); } }catch(err){ console.error('modal img onerror', err); }
+  };
   const form = document.createElement('div');
   form.innerHTML = `
     <div class="form-row"><label>${t('label.filename')}</label><input id="f-fn" value="${escapeHtml(rec.filename)}"></div>
@@ -754,7 +773,11 @@ async function showArtist(artistId){
     gallery.innerHTML='';
     for(const rec of imgs){
       const card = document.createElement('div');card.className='card';card.dataset.id = rec.id;
-  const im = document.createElement('img');im.src = rec && rec.url ? rec.url : await blobToDataURL(rec.blob);
+  const im = document.createElement('img');
+  im.src = rec && rec.url ? rec.url : (rec && rec.blob ? await blobToDataURL(rec.blob) : '');
+  im.onerror = async function(){
+    try{ if(rec && rec.blob){ this.onerror = null; this.src = await blobToDataURL(rec.blob); } }catch(e){ console.error('artist img onerror', e); }
+  };
       card.appendChild(im);
       const check = document.createElement('div'); check.className = 'check'; card.appendChild(check);
       if(selected.has(rec.id)) card.classList.add('selected');
