@@ -1,0 +1,15 @@
+[env.production]
+name = "my-project-upload-worker"
+main = "cloudflare/worker.js"
+compatibility_date = "2025-10-31"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "my-project-images"
+preview_bucket_name = "my-project-images"
+
+[vars]
+# Optional simple upload key (not secret-safe for client-side distribution). Better to use signed URLs for production.
+UPLOAD_KEY = "PUT_YOUR_UPLOAD_KEY_HERE"
+# ORIGIN_BASE should be your Pages or domain base (e.g. https://yourdomain.com)
+ORIGIN_BASE = "https://your-pages-or-worker-domain"
