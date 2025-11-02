@@ -375,6 +375,9 @@ async function route(){
     setLayoutDetail(true);
     const id = Number(hash.split('/')[2]);
     await showArtist(id);
+  } else if(hash.startsWith('#/board')){
+    setLayoutDetail(true);
+    await showBoard();
   } else {
     setLayoutDetail(false);
     showHome();
@@ -410,6 +413,14 @@ function getPublicListEndpoint(){
     const u = new URL(UPLOAD_ENDPOINT, location.href);
     return u.origin + '/list';
   }catch(e){ return '/list'; }
+}
+
+function getBoardEndpoint(){
+  if(window.BOARD_ENDPOINT && typeof window.BOARD_ENDPOINT === 'string') return window.BOARD_ENDPOINT;
+  try{
+    const u = new URL(UPLOAD_ENDPOINT, location.href);
+    return u.origin + '/board/messages';
+  }catch(e){ return '/board/messages'; }
 }
 
 async function fetchPublicGallery(){
@@ -979,6 +990,192 @@ function blobToDataURL(blob){
   return new Promise((resolve)=>{
     const fr = new FileReader();fr.onload = ()=>resolve(fr.result);fr.readAsDataURL(blob);
   });
+}
+
+function getStaticPhotoPath(){
+  try{ return (window.STATIC_PHOTO_PATH && typeof window.STATIC_PHOTO_PATH === 'string') ? window.STATIC_PHOTO_PATH.replace(/\/$/, '') : './static_photos'; }
+  catch(e){ return './static_photos'; }
+}
+
+async function fetchStaticManifest(){
+  const base = getStaticPhotoPath();
+  const manifestUrl = base + '/manifest.json';
+  try{
+    const res = await fetch(manifestUrl, { cache: 'no-store' });
+    if(!res.ok) return null;
+    const j = await res.json();
+    if(Array.isArray(j.files)) return j.files;
+    return null;
+  }catch(e){ return null; }
+}
+
+function loadBoardMessages(){
+  try{
+    const raw = localStorage.getItem('board_messages') || '[]';
+    return JSON.parse(raw);
+  }catch(e){ return []; }
+}
+
+function saveBoardMessages(list){
+  try{ localStorage.setItem('board_messages', JSON.stringify(list)); }catch(e){ console.error('saveBoardMessages failed', e); }
+}
+
+async function showBoard(){
+  const photos = await fetchStaticManifest();
+  mainView.innerHTML = '';
+  const container = document.createElement('div'); container.className = 'board-view';
+  container.innerHTML = `
+    <div class="page-header">
+      <button id="back-to-home-board" class="btn ghost">←</button>
+      <h2>留言板</h2>
+    </div>
+    <div class="board-area">
+      <div id="board-drop-area" class="drop-area" style="margin-bottom:12px;padding:12px;border:1px dashed #bbb;">
+        <p>把图片拖到这里上传，或点击选择文件（上传的图片会显示到留言板）</p>
+        <input id="board-fileElem" type="file" accept="image/*" multiple style="display:none" />
+        <label class="btn ghost" for="board-fileElem">选择文件上传</label>
+      </div>
+      <form id="board-form" style="margin-bottom:16px">
+        <div><input id="board-author" placeholder="你的名字（可选）" style="width:100%"></div>
+        <div style="margin-top:8px"><textarea id="board-text" placeholder="写点什么…" style="width:100%" rows="3"></textarea></div>
+        <div style="margin-top:8px">
+          <label>选择图片（可选）</label>
+          <select id="board-photo-select"><option value="">不使用图片</option></select>
+        </div>
+        <div style="text-align:right;margin-top:8px"><button id="board-post" class="btn">发布</button></div>
+      </form>
+      <div id="board-list"></div>
+    </div>
+  `;
+  mainView.appendChild(container);
+  document.getElementById('back-to-home-board').addEventListener('click', ()=>{ location.hash = ''; });
+
+  const select = document.getElementById('board-photo-select');
+  if(photos && photos.length>0){
+    photos.forEach(f=>{
+      const opt = document.createElement('option'); opt.value = f; opt.textContent = f; select.appendChild(opt);
+    });
+  } else {
+    const note = document.createElement('div'); note.style.margin='8px 0'; note.style.color='#666';
+    note.innerHTML = '未找到静态图片清单 (manifest.json)。请将图片放入 ' + getStaticPhotoPath() + ' 并创建 manifest.json（示例见 assets/static_photos/README.md）。';
+    select.parentNode.insertBefore(note, select.nextSibling);
+  }
+
+  function renderList(){
+    const el = document.getElementById('board-list'); el.innerHTML = '';
+    // Try to fetch server-side persisted messages first
+    (async ()=>{
+      try{
+        const endpoint = getBoardEndpoint();
+        const res = await fetch(endpoint, { method: 'GET' });
+        if(res.ok){
+          const j = await res.json();
+          if(j && Array.isArray(j.messages) && j.messages.length>0){
+            j.messages.slice().reverse().forEach(item=> renderBoardCard(el, item));
+            return;
+          }
+        }
+      }catch(e){ /* server not available, fall back */ }
+      // fallback to localStorage messages
+      const list = loadBoardMessages();
+      if(list.length===0){ el.innerHTML = '<div class="empty">还没有留言，快来发第一条！</div>'; return; }
+      list.slice().reverse().forEach(item=> renderBoardCard(el, item));
+    })();
+  }
+
+  document.getElementById('board-post').addEventListener('click', (ev)=>{
+    ev.preventDefault();
+    (async ()=>{
+      const author = document.getElementById('board-author').value.trim();
+      const text = document.getElementById('board-text').value.trim();
+      const photo = document.getElementById('board-photo-select').value || null;
+      if(!text){ alert('请输入留言内容'); return; }
+      const msg = { author: author || '匿名', text, photoUrl: photo ? (getStaticPhotoPath() + '/' + photo) : null, ts: Date.now() };
+      // Try to POST to server; if it fails, fall back to localStorage
+      try{
+        const endpoint = getBoardEndpoint();
+        const res = await fetch(endpoint, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(msg) });
+        if(res.ok){
+          // clear inputs and refresh from server
+          document.getElementById('board-text').value = '';
+          document.getElementById('board-photo-select').value = '';
+          renderList();
+          return;
+        }
+      }catch(e){ /* network error -> fallback */ }
+      // fallback: save locally
+      const list = loadBoardMessages();
+      list.push({ author: msg.author, text: msg.text, photo: photo, ts: msg.ts });
+      saveBoardMessages(list);
+      document.getElementById('board-text').value = '';
+      document.getElementById('board-photo-select').value = '';
+      renderList();
+    })();
+  });
+
+  renderList();
+
+  // bind board upload drag/drop and file input
+  const dropArea = document.getElementById('board-drop-area');
+  const boardFileElem = document.getElementById('board-fileElem');
+  ['dragenter','dragover'].forEach(e=>dropArea.addEventListener(e,ev=>{ev.preventDefault();dropArea.classList.add('dragover')}));
+  ['dragleave','drop'].forEach(e=>dropArea.addEventListener(e,ev=>{ev.preventDefault();dropArea.classList.remove('dragover')}));
+  dropArea.addEventListener('drop', async (ev)=>{ try{ const files = Array.from(ev.dataTransfer.files); await handleBoardFiles(files); }catch(err){ console.error('board drop error', err); alert('上传失败'); } });
+  boardFileElem.addEventListener('change', async (ev)=>{ try{ const files = Array.from(ev.target.files); await handleBoardFiles(files); boardFileElem.value=''; }catch(err){ console.error('board file error', err); alert('上传失败'); } });
+}
+
+function renderBoardCard(container, item){
+  const card = document.createElement('div'); card.className = 'board-card';
+  const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = (item.author||'匿名') + ' · ' + (new Date(item.ts)).toLocaleString();
+  const body = document.createElement('div'); body.className = 'body'; body.textContent = item.text;
+  card.appendChild(meta); card.appendChild(body);
+  if(item.photo){
+    const img = document.createElement('img'); img.src = getStaticPhotoPath() + '/' + item.photo; img.style.maxWidth='100%'; img.style.marginTop='8px';
+    card.appendChild(img);
+  } else if(item.photoUrl){
+    const img = document.createElement('img'); img.src = item.photoUrl; img.style.maxWidth='100%'; img.style.marginTop='8px';
+    img.onerror = function(){ this.alt='图片加载失败'; };
+    card.appendChild(img);
+  }
+  container.appendChild(card);
+}
+
+// Handle files uploaded from board area: upload to remote endpoint, create board messages and save local image record
+async function handleBoardFiles(files){
+  for(const f of files){
+    if(!f.type.startsWith('image/')) continue;
+    let uploadedUrl = null;
+    try{
+  const fd = new FormData(); fd.append('file', f, f.name);
+  const headers = {};
+  if(window.UPLOAD_KEY) headers['x-upload-key'] = window.UPLOAD_KEY;
+  const endpoint = (window.UPLOAD_ENDPOINT || UPLOAD_ENDPOINT || '').toString();
+  const res = await fetch(endpoint, { method: 'POST', body: fd, headers });
+      if(res.ok){ const j = await res.json(); if(j && j.url) uploadedUrl = j.url; }
+    }catch(e){ console.error('board upload failed', e); }
+
+    // create board message and try to persist to server; fall back to localStorage
+    const msg = { author: '匿名', text: '', photoUrl: uploadedUrl, ts: Date.now() };
+    try{
+      const endpoint = getBoardEndpoint();
+      const res = await fetch(endpoint, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(msg) });
+      if(!res.ok) throw new Error('server returned non-ok');
+    }catch(e){
+      // fallback: save locally
+      const list = loadBoardMessages();
+      list.push({ author: msg.author, text: msg.text, photo: uploadedUrl ? null : null, photoUrl: uploadedUrl, ts: msg.ts });
+      saveBoardMessages(list);
+    }
+
+    // also store in images DB for consistency
+    try{
+      const blob = await f.slice();
+      const rec = { filename: f.name, blob: blob, albumId: null, artistId: null, artistName:'', createdAt: Date.now(), desc:'', url: uploadedUrl };
+      await DB.add('images', rec);
+    }catch(e){ console.error('save image to DB failed', e); }
+  }
+  // refresh board view
+  try{ await showBoard(); }catch(e){ console.error('refresh board after upload failed', e); }
 }
 
 // Try to delete a remote uploaded object given its public URL. Returns true if deleted.
