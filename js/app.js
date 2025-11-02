@@ -147,8 +147,7 @@ function applyLang(){
   // 设置文档语言属性
   const htmlEl = document.documentElement;
   if(htmlEl){ htmlEl.setAttribute('lang', getStoredLang()==='zh' ? 'zh-CN' : 'en'); }
-  const search = document.getElementById('artist-search');
-  if(search){ search.placeholder = t('search.placeholder'); search.setAttribute('aria-label', t('search.placeholder')); }
+  // artist search removed — keep DOM if present but do not set placeholder
   const themeBtn = document.getElementById('theme-toggle');
   if(themeBtn){ themeBtn.title = t('theme.toggle'); themeBtn.setAttribute('aria-label', t('theme.toggle')); }
   const langBtn = document.getElementById('lang-toggle');
@@ -193,8 +192,7 @@ async function init(){
   if(lbtn) lbtn.addEventListener('click', toggleLang);
   // 可编辑首页介绍
   bindHomeIntro();
-  // 绑定画师搜索
-  bindArtistSearch();
+  // 画师搜索功能已移除；保留 DOM 但不绑定任何事件
 
   bindUpload();
   await renderAlbums();
@@ -222,56 +220,11 @@ function bindHomeIntro(){
   el.addEventListener('blur', save);
 }
 
-function bindArtistSearch(){
-  const input = document.getElementById('artist-search');
-  const results = document.getElementById('search-results');
-  const wrap = document.getElementById('artist-search-wrap');
-  if(!input || !results || !wrap) return;
-
-  let lastQuery = '';
-  let hideTimer = null;
-
-  async function doSearch(q){
-    const query = (q||'').trim();
-    lastQuery = query;
-    if(!query){ results.innerHTML=''; results.classList.add('hidden'); return; }
-    const artists = await DB.getAll('artists');
-    const lower = query.toLowerCase();
-    const matches = artists.filter(a=> (a.name||'').toLowerCase().includes(lower)).sort((a,b)=>a.name.localeCompare(b.name)).slice(0,20);
-  if(matches.length===0){ results.innerHTML = `<div class="empty">${t('search.empty', query)}</div>`; results.classList.remove('hidden'); return; }
-    results.innerHTML = matches.map(a=>`
-      <div class="item" role="option" data-id="${a.id}">👤 ${escapeHtml(a.name)}</div>
-    `).join('');
-    results.classList.remove('hidden');
-    // 绑定点击
-    results.querySelectorAll('.item').forEach(it=>{
-      it.addEventListener('click', ()=>{
-        const id = Number(it.getAttribute('data-id'));
-        results.classList.add('hidden');
-        input.blur();
-        location.hash = '#/artist/' + id;
-      });
-    });
-  }
-
-  input.addEventListener('input', (e)=>{ doSearch(e.target.value); });
-  input.addEventListener('keydown', (e)=>{
-    if(e.key==='Escape'){
-      results.classList.add('hidden'); input.value='';
-    } else if(e.key==='Enter'){
-      e.preventDefault();
-      const first = results.querySelector('.item');
-      if(first){ first.click(); }
-      else if(lastQuery){ doSearch(lastQuery); }
-    }
-  });
-  input.addEventListener('focus', ()=>{ if(input.value){ doSearch(input.value); } });
-  input.addEventListener('blur', ()=>{ hideTimer = setTimeout(()=>results.classList.add('hidden'), 120); });
-  // 点击结果面板时阻止提前隐藏
-  results.addEventListener('mousedown', ()=>{ if(hideTimer){ clearTimeout(hideTimer); hideTimer=null; } });
-}
+// bindArtistSearch removed — artist search JS is disabled. Keep any DOM elements intact.
 
 function bindUpload(){
+  // If upload UI was removed from the homepage, skip binding to avoid errors
+  if(!dropArea || !fileElem) return;
   ['dragenter','dragover'].forEach(e=>dropArea.addEventListener(e,ev=>{ev.preventDefault();dropArea.classList.add('dragover')}));
   ['dragleave','drop'].forEach(e=>dropArea.addEventListener(e,ev=>{ev.preventDefault();dropArea.classList.remove('dragover')}));
   dropArea.addEventListener('drop', async (ev)=>{
@@ -292,15 +245,12 @@ function bindUpload(){
 async function handleFiles(files){
   for(const f of files){
     if(!f.type.startsWith('image/')) continue;
-    const artistName = prompt(t('prompt.artistName')) || t('artist.anonymous');
+    // Do not ask for artist information anymore. Keep album prompt (if desired) but default if empty.
     const albumName = prompt(t('prompt.targetAlbum')) || t('album.default');
 
-    const artists = await DB.getAll('artists');
-    let artist = artists.find(a=>a.name===artistName);
-    let artistId;
-    if(!artist){
-      artistId = await DB.add('artists',{name:artistName});
-    } else artistId = artist.id;
+    // Artist feature removed: do not create or lookup artists. Leave artistId null and artistName empty.
+    const artistId = null;
+    const artistName = '';
 
     const albums = await DB.getAll('albums');
     let album = albums.find(a=>a.name===albumName);
@@ -367,6 +317,7 @@ function escapeHtml(s){return (s+'').replace(/[&<>"']/g,c=>({
 
 async function route(){
   const hash = location.hash || '';
+  // no board polling to clear (polling removed)
   if(hash.startsWith('#/album/')){
     setLayoutDetail(true);
     const id = Number(hash.split('/')[2]);
@@ -402,52 +353,14 @@ function showHome(){
   // 兜底：无论从哪里进入主页，都确保主页布局可见
   setLayoutDetail(false);
   mainView.innerHTML = '';
-  // 拉取并渲染公共画廊（来自上传服务器 / Worker 的 /list 接口）
-  fetchPublicGallery().catch(err=>{ /* fail silently */ console.debug('public gallery load failed', err); });
+  // No public gallery on the homepage by default.
 }
-
-function getPublicListEndpoint(){
-  // derive list endpoint from UPLOAD_ENDPOINT origin if not explicitly set
-  if(window.PUBLIC_LIST_ENDPOINT && typeof window.PUBLIC_LIST_ENDPOINT === 'string') return window.PUBLIC_LIST_ENDPOINT;
-  try{
-    const u = new URL(UPLOAD_ENDPOINT, location.href);
-    return u.origin + '/list';
-  }catch(e){ return '/list'; }
-}
-
 function getBoardEndpoint(){
   if(window.BOARD_ENDPOINT && typeof window.BOARD_ENDPOINT === 'string') return window.BOARD_ENDPOINT;
   try{
     const u = new URL(UPLOAD_ENDPOINT, location.href);
     return u.origin + '/board/messages';
   }catch(e){ return '/board/messages'; }
-}
-
-async function fetchPublicGallery(){
-  const endpoint = getPublicListEndpoint();
-  try{
-    const res = await fetch(endpoint, { method: 'GET' });
-    if(!res.ok) return;
-    const j = await res.json();
-    if(!j || !Array.isArray(j.urls)) return;
-    // 渲染一个简单的公共画廊到主页下方
-    const section = document.createElement('div'); section.id = 'public-gallery'; section.className = 'public-gallery';
-    section.innerHTML = `<h2>Public Gallery</h2><div class="public-grid"></div>`;
-    const grid = section.querySelector('.public-grid');
-    j.urls.forEach(url =>{
-      const card = document.createElement('div'); card.className = 'card';
-      const img = document.createElement('img'); img.src = url; img.alt = '';
-      img.onerror = function(){ this.alt = 'Image load failed'; };
-      // 点击直接打开图片
-      img.addEventListener('click', ()=>{ window.open(url); });
-      card.appendChild(img);
-      grid.appendChild(card);
-    });
-    // 在 albums-list 后插入
-    const albumsList = document.getElementById('albums-list');
-    if(albumsList && albumsList.parentNode){ albumsList.parentNode.insertBefore(section, albumsList.nextSibling); }
-    else mainView.appendChild(section);
-  }catch(err){ console.error('fetchPublicGallery error', err); }
 }
 
 async function showAlbum(albumId){
@@ -1023,6 +936,7 @@ function saveBoardMessages(list){
 async function showBoard(){
   const photos = await fetchStaticManifest();
   mainView.innerHTML = '';
+  // no persistent polling: we'll attempt a one-time sync on entry
   const container = document.createElement('div'); container.className = 'board-view';
   container.innerHTML = `
     <div class="page-header">
@@ -1039,9 +953,7 @@ async function showBoard(){
         <div><input id="board-author" placeholder="你的名字（可选）" style="width:100%"></div>
         <div style="margin-top:8px"><textarea id="board-text" placeholder="写点什么…" style="width:100%" rows="3"></textarea></div>
         <div style="margin-top:8px">
-          <label>选择图片（可选）</label>
-          <select id="board-photo-select"><option value="">不使用图片</option></select>
-        </div>
+          </div>
         <div style="text-align:right;margin-top:8px"><button id="board-post" class="btn">发布</button></div>
       </form>
       <div id="board-list"></div>
@@ -1050,16 +962,7 @@ async function showBoard(){
   mainView.appendChild(container);
   document.getElementById('back-to-home-board').addEventListener('click', ()=>{ location.hash = ''; });
 
-  const select = document.getElementById('board-photo-select');
-  if(photos && photos.length>0){
-    photos.forEach(f=>{
-      const opt = document.createElement('option'); opt.value = f; opt.textContent = f; select.appendChild(opt);
-    });
-  } else {
-    const note = document.createElement('div'); note.style.margin='8px 0'; note.style.color='#666';
-    note.innerHTML = '未找到静态图片清单 (manifest.json)。请将图片放入 ' + getStaticPhotoPath() + ' 并创建 manifest.json（示例见 assets/static_photos/README.md）。';
-    select.parentNode.insertBefore(note, select.nextSibling);
-  }
+  // static manifest loaded (not used for board selection anymore)
 
   function renderList(){
     const el = document.getElementById('board-list'); el.innerHTML = '';
@@ -1086,11 +989,11 @@ async function showBoard(){
   document.getElementById('board-post').addEventListener('click', (ev)=>{
     ev.preventDefault();
     (async ()=>{
-      const author = document.getElementById('board-author').value.trim();
-      const text = document.getElementById('board-text').value.trim();
-      const photo = document.getElementById('board-photo-select').value || null;
-      if(!text){ alert('请输入留言内容'); return; }
-      const msg = { author: author || '匿名', text, photoUrl: photo ? (getStaticPhotoPath() + '/' + photo) : null, ts: Date.now() };
+  const author = document.getElementById('board-author').value.trim();
+  const text = document.getElementById('board-text').value.trim();
+  if(!text){ alert('请输入留言内容'); return; }
+  // No static-photo selection in board; plain text message
+  const msg = { author: author || '匿名', text, photoUrl: null, ts: Date.now() };
       // Try to POST to server; if it fails, fall back to localStorage
       try{
         const endpoint = getBoardEndpoint();
@@ -1098,17 +1001,16 @@ async function showBoard(){
         if(res.ok){
           // clear inputs and refresh from server
           document.getElementById('board-text').value = '';
-          document.getElementById('board-photo-select').value = '';
           renderList();
           return;
         }
       }catch(e){ /* network error -> fallback */ }
       // fallback: save locally
       const list = loadBoardMessages();
-      list.push({ author: msg.author, text: msg.text, photo: photo, ts: msg.ts });
+      list.push({ author: msg.author, text: msg.text, photoUrl: null, ts: msg.ts });
       saveBoardMessages(list);
       document.getElementById('board-text').value = '';
-      document.getElementById('board-photo-select').value = '';
+      // no photo select to clear
       renderList();
     })();
   });
@@ -1122,6 +1024,30 @@ async function showBoard(){
   ['dragleave','drop'].forEach(e=>dropArea.addEventListener(e,ev=>{ev.preventDefault();dropArea.classList.remove('dragover')}));
   dropArea.addEventListener('drop', async (ev)=>{ try{ const files = Array.from(ev.dataTransfer.files); await handleBoardFiles(files); }catch(err){ console.error('board drop error', err); alert('上传失败'); } });
   boardFileElem.addEventListener('change', async (ev)=>{ try{ const files = Array.from(ev.target.files); await handleBoardFiles(files); boardFileElem.value=''; }catch(err){ console.error('board file error', err); alert('上传失败'); } });
+
+  // Attempt a one-time initial sync of local->server (no periodic polling)
+  try{
+    await syncLocalBoardMessages();
+  }catch(e){ console.warn('board sync init failed', e); }
+}
+
+// Sync any locally saved board messages (localStorage) to server. On success remove them locally.
+async function syncLocalBoardMessages(){
+  const endpoint = getBoardEndpoint();
+  const local = loadBoardMessages();
+  if(!Array.isArray(local) || local.length===0) return;
+  const remaining = [];
+  for(const item of local){
+    try{
+      const msg = { author: item.author || '匿名', text: item.text || '', photoUrl: item.photoUrl || (item.photo ? (getStaticPhotoPath() + '/' + item.photo) : null), ts: item.ts || Date.now() };
+      const res = await fetch(endpoint, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(msg) });
+      if(!res.ok){ throw new Error('server returned non-ok'); }
+    }catch(e){
+      remaining.push(item);
+    }
+  }
+  if(remaining.length===0) localStorage.removeItem('board_messages');
+  else saveBoardMessages(remaining);
 }
 
 function renderBoardCard(container, item){
@@ -1154,16 +1080,22 @@ async function handleBoardFiles(files){
       if(res.ok){ const j = await res.json(); if(j && j.url) uploadedUrl = j.url; }
     }catch(e){ console.error('board upload failed', e); }
 
+    // Read current author/text from the board form so image+text can be posted together
+    const authorInput = document.getElementById('board-author');
+    const textInput = document.getElementById('board-text');
+    const author = (authorInput && authorInput.value.trim()) ? authorInput.value.trim() : '匿名';
+    const text = (textInput && textInput.value.trim()) ? textInput.value.trim() : '';
+
     // create board message and try to persist to server; fall back to localStorage
-    const msg = { author: '匿名', text: '', photoUrl: uploadedUrl, ts: Date.now() };
+    const msg = { author, text, photoUrl: uploadedUrl || null, ts: Date.now() };
     try{
       const endpoint = getBoardEndpoint();
       const res = await fetch(endpoint, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(msg) });
       if(!res.ok) throw new Error('server returned non-ok');
     }catch(e){
-      // fallback: save locally
+      // fallback: save locally with same shape
       const list = loadBoardMessages();
-      list.push({ author: msg.author, text: msg.text, photo: uploadedUrl ? null : null, photoUrl: uploadedUrl, ts: msg.ts });
+      list.push({ author: msg.author, text: msg.text, photoUrl: msg.photoUrl, ts: msg.ts });
       saveBoardMessages(list);
     }
 
