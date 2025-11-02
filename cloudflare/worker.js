@@ -129,6 +129,52 @@ async function handleRequest(request){
     }
   }
 
+  // POST /board/messages -> persist a message JSON to R2 under prefix board/messages/
+  if(request.method === 'POST' && url.pathname === '/board/messages'){
+    try{
+      const body = await request.json();
+      // expected fields: author, text, photoUrl?, ts (optional)
+      const ts = body && body.ts ? Number(body.ts) : Date.now();
+      const idpart = ts + '_' + Math.random().toString(36).slice(2,9);
+      const key = `board/messages/${idpart}.json`;
+      const payload = JSON.stringify({ author: body.author||'匿名', text: body.text||'', photoUrl: body.photoUrl||null, ts });
+      await IMAGES.put(key, payload, { httpMetadata: { contentType: 'application/json' } });
+      return new Response(JSON.stringify({ ok: true, id: key, msg: JSON.parse(payload) }), { status: 200, headers: jsonCorsHeaders() });
+    }catch(err){
+      return new Response(JSON.stringify({ error: 'board_save_failed', detail: String(err) }), { status: 500, headers: jsonCorsHeaders() });
+    }
+  }
+
+  // GET /board/messages -> list persisted board messages (reads objects under board/messages/)
+  if(request.method === 'GET' && url.pathname === '/board/messages'){
+    try{
+      // list keys with prefix
+      const list = await IMAGES.list({ prefix: 'board/messages/', limit: 1000 });
+      const objs = list && list.objects ? list.objects : [];
+      const messages = [];
+      for(const o of objs){
+        try{
+          const obj = await IMAGES.get(o.key);
+          if(!obj) continue;
+          let txt = '';
+          if(obj.body){
+            const buf = await obj.arrayBuffer();
+            const str = new TextDecoder().decode(buf);
+            txt = str;
+          }
+          const parsed = JSON.parse(txt);
+          parsed._id = o.key;
+          messages.push(parsed);
+        }catch(e){ /* skip parse errors */ }
+      }
+      // sort by ts asc
+      messages.sort((a,b)=> (a.ts||0) - (b.ts||0));
+      return new Response(JSON.stringify({ messages }), { status: 200, headers: jsonCorsHeaders() });
+    }catch(err){
+      return new Response(JSON.stringify({ error: 'board_list_failed', detail: String(err) }), { status: 500, headers: jsonCorsHeaders() });
+    }
+  }
+
   // fallback: 404
   return new Response('Not found', { status: 404 });
 }
