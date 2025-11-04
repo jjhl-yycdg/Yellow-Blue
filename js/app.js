@@ -9,12 +9,39 @@ const I18N = {
     'search.placeholder': '搜索画师…',
     'search.empty': (q)=>`未找到“${escapeHtml(q)}”`,
     'lang.toggle': '切换语言',
-    'theme.toggle': '切换暗/亮主题',
     'upload.tip': '把图片拖到这里上传，或点击选择文件',
     'upload.choose': '选择文件',
     'intro.title': '介绍',
     'albums.title': '相册',
-  'intro.bodyHtml': '<p>在这里用文字介绍你的 OC。你可以在代码中维护中英文内容，语言切换会自动展示对应文本。</p>',
+  'board.title': '留言板',
+  'albums.intro': '<h1>这里是一些关于黄蓝的图片(・∀・)</h1>',
+  'intro.resumeTitle': '简历',
+  'intro.resumeDesc': '卷卷说她不找工作不实习，所以这里只有锅盖的简历。',
+  'intro.resumeDownload': '下载：锅盖的简历（PDF）',
+  'intro.resumePreview': '预览',
+  'intro.clothesTitle': '衣服',
+  'intro.clothesDesc': '这里展示一些黄蓝的衣服。',
+  'clothes.caption.spring': '春装',
+  'clothes.caption.halloween': '万圣',
+  'clothes.caption.pajamas': '睡衣',
+  'clothes.caption.baopa': '宝pa',
+  'clothes.caption.christmas': '圣诞',
+  'clothes.caption.winter': '冬装',
+    'intro.backgroundTitle': '背景',
+    'intro.backgroundText': '黄蓝是基于斯普拉遁世界观的OC。《斯普拉遁》是任天堂推出的第三人称射击游戏，玩家将操控能在人形与鱿鱼/章鱼形态间切换的生物，在4对4的对战中喷射专属颜色的墨汁，通过3分钟内覆盖更多地图面积取胜，鱿鱼形态下可潜入己方墨汁快速移动、恢复墨水，此外还有合作“鲑鱼跑”、单人英雄模式等玩法。',
+  'intro.namesTitle': '称呼',
+  'intro.namesText': '通常用“卷卷”和“锅盖”来单独称呼他们。因为他们的颜色来源跟美团和饿了么有些关系，所以也可以这么叫他们。（打架去对面送外卖了鱿！）Σ( ° △ °|||)︴',
+  'home.card.intro.caption': '快速了解黄蓝',
+  'home.card.albums.caption': '查看黄蓝相关图片',
+  'home.card.board.caption': '给我留言或发张图',
+  'featured.title': '精选预览',
+  'featured.aria': '精选图片，横向滚动',
+  'board.drop.tip': '把图片拖到这里上传，或点击选择文件（上传的图片会显示到留言板）',
+  'board.choose': '选择文件上传',
+  'board.author.placeholder': '你的名字（可选）',
+  'board.text.placeholder': '写点什么…',
+  'board.post': '发布',
+  'pdf.unsupported': (encoded)=>`如果浏览器不支持内联 PDF 预览，请 <a href="${encoded}" target="_blank" rel="noopener">下载查看</a>`,
     'back.home': '返回主页',
     'album.rename.prompt': '输入新的相册名称',
     'album.delete.confirm': '确认删除此相册及其所有图片？此操作不可恢复',
@@ -62,12 +89,41 @@ const I18N = {
     'search.placeholder': 'Search artists…',
     'search.empty': (q)=>`No results for “${escapeHtml(q)}”`,
     'lang.toggle': 'Switch language',
-    'theme.toggle': 'Toggle theme',
     'upload.tip': 'Drag images here, or click to choose files',
     'upload.choose': 'Choose file',
     'intro.title': 'Intro',
     'albums.title': 'Albums',
-  'intro.bodyHtml': '<p>Use this area to introduce your OCs. Maintain both Chinese and English in code; the language toggle will show the matching text.</p>',
+  'board.title': 'Board',
+  'albums.intro': '<h1>Here are some images about Yellow & Blue (・∀・)</h1>',
+  'intro.bodyHtml': '<p class="intro-extra">Use this area to introduce your OCs. Maintain both Chinese and English in code; the language toggle will show the matching text.</p>',
+  'intro.extra': 'Welcome — browse my portfolio and feel free to contact me for feedback or collaborations.',
+  'intro.resumeTitle': 'Resume',
+  'intro.resumeDesc': 'Juanjuan said she isn\'t looking for a job or an internship, so only Guogai\'s resume is available here.',
+  'intro.resumeDownload': 'Download: Resume (PDF)',
+  'intro.resumePreview': 'Preview',
+  'intro.clothesTitle': 'Clothing',
+  'intro.clothesDesc': 'A selection of yellow & blue clothing.',
+  'clothes.caption.spring': 'Spring outfit',
+  'clothes.caption.halloween': 'Halloween',
+  'clothes.caption.pajamas': 'Pajamas',
+  'clothes.caption.baopa': 'Pokémon',
+  'clothes.caption.christmas': 'Christmas',
+  'clothes.caption.winter': 'Winter outfit',
+    'intro.backgroundTitle': 'Background',
+    'intro.backgroundText': 'Yellow & Blue are original characters (OCs) based on the worldview of Splatoon. Splatoon is a third-person shooter game developed by Nintendo, where players control creatures that can switch between human and squid/octopus forms. In 4v4 battles, players spray ink of their exclusive color and win by covering more of the map area within 3 minutes. In squid form, they can dive into their own ink to move quickly and replenish ink. Additionally, the game features cooperative gameplay like "Salmon Run" and a single-player Hero Mode',
+  'intro.namesTitle': 'Names',
+  'intro.namesText': 'They are usually referred to individually as "Juanjuan" and "Guogai". Since the inspiration for their colors is somewhat related to Meituan and Ele.me (two major Chinese food delivery platforms), they can also be called by these names. (The squid went to the opposite side to deliver food!) Σ( ° △ °|||)︴',
+  'home.card.intro.caption': 'Quick intro to Yellow & Blue',
+  'home.card.albums.caption': 'Browse Yellow & Blue images',
+  'home.card.board.caption': 'Leave a message or post an image',
+  'featured.title': 'Featured',
+  'featured.aria': 'Featured images, horizontal scroll',
+  'board.drop.tip': 'Drag images here to post, or click to choose files (uploaded images will appear on the board)',
+  'board.choose': 'Choose files',
+  'board.author.placeholder': 'Your name (optional)',
+  'board.text.placeholder': 'Write something…',
+  'board.post': 'Post',
+  'pdf.unsupported': (encoded)=>`If your browser does not support inline PDF preview, please <a href="${encoded}" target="_blank" rel="noopener">download to view</a>`,
     'back.home': 'Back Home',
     'album.rename.prompt': 'Enter a new album name',
     'album.delete.confirm': 'Delete this album and all its images? This cannot be undone.',
@@ -123,35 +179,29 @@ function t(key, param){
   return v || (I18N.zh[key] || key);
 }
 
-// 主题（暗/亮）管理 —— 使用 data-theme 和 localStorage
-function getStoredTheme(){ return localStorage.getItem('theme'); }
-function getPreferredTheme(){
-  const stored = getStoredTheme();
-  if(stored) return stored;
-  if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
-  return 'light';
-}
-function applyTheme(theme){
-  document.documentElement.setAttribute('data-theme', theme);
-  const btn = document.getElementById('theme-toggle');
-  if(btn){ btn.setAttribute('aria-pressed', theme === 'dark'); }
-}
-function toggleTheme(){
-  const current = document.documentElement.getAttribute('data-theme') || 'light';
-  const next = current === 'dark' ? 'light' : 'dark';
-  localStorage.setItem('theme', next);
-  applyTheme(next);
-}
+// theme toggle removed
 
 function applyLang(){
   // 设置文档语言属性
   const htmlEl = document.documentElement;
   if(htmlEl){ htmlEl.setAttribute('lang', getStoredLang()==='zh' ? 'zh-CN' : 'en'); }
   // artist search removed — keep DOM if present but do not set placeholder
-  const themeBtn = document.getElementById('theme-toggle');
-  if(themeBtn){ themeBtn.title = t('theme.toggle'); themeBtn.setAttribute('aria-label', t('theme.toggle')); }
+  // theme toggle removed: no theme button to update
   const langBtn = document.getElementById('lang-toggle');
-  if(langBtn){ langBtn.title = t('lang.toggle'); langBtn.setAttribute('aria-label', t('lang.toggle')); }
+  if(langBtn){ 
+    langBtn.title = t('lang.toggle'); 
+    langBtn.setAttribute('aria-label', t('lang.toggle'));
+    // keep icon-only: remove any existing text label
+    const existing = langBtn.querySelector('.lang-label');
+    if(existing) existing.remove();
+  }
+  // update top nav labels to match selected language
+  const navIntro = document.getElementById('nav-intro');
+  const navAlbums = document.getElementById('nav-albums');
+  const navBoard = document.getElementById('nav-board');
+  if(navIntro) navIntro.textContent = t('intro.title');
+  if(navAlbums) navAlbums.textContent = t('albums.title');
+  if(navBoard) navBoard.textContent = t('board.title');
   const upTip = document.getElementById('upload-tip');
   if(upTip){ upTip.textContent = t('upload.tip'); }
   const uploadLabel = document.querySelector('label[for="fileElem"]');
@@ -182,17 +232,25 @@ const modalBody = document.getElementById('modal-body');
 const modalClose = document.getElementById('modal-close');
 
 async function init(){
-  // 主题初始化
-  applyTheme(getPreferredTheme());
-  const tbtn = document.getElementById('theme-toggle');
-  if(tbtn) tbtn.addEventListener('click', toggleTheme);
+  // theme toggle removed: no initialization required
   // 语言初始化与绑定
   applyLang();
   const lbtn = document.getElementById('lang-toggle');
   if(lbtn) lbtn.addEventListener('click', toggleLang);
+  // 站点标题可点击返回主页
+  const siteTitle = document.getElementById('site-title');
+  if(siteTitle) siteTitle.addEventListener('click', ()=>{ location.hash = ''; });
   // 可编辑首页介绍
   bindHomeIntro();
   // 画师搜索功能已移除；保留 DOM 但不绑定任何事件
+
+  // 顶部导航绑定
+  const navIntro = document.getElementById('nav-intro');
+  const navAlbums = document.getElementById('nav-albums');
+  const navBoard = document.getElementById('nav-board');
+  if(navIntro) navIntro.addEventListener('click', ()=>{ location.hash = '#/intro'; });
+  if(navAlbums) navAlbums.addEventListener('click', ()=>{ location.hash = '#/albums'; });
+  if(navBoard) navBoard.addEventListener('click', ()=>{ location.hash = '#/board'; });
 
   bindUpload();
   await renderAlbums();
@@ -284,6 +342,8 @@ async function handleFiles(files){
 }
 
 async function renderAlbums(){
+  // If the albums container has been removed from the homepage, skip rendering
+  if(!albumsContainer) return;
   const albums = await DB.getAll('albums');
   albumsContainer.innerHTML = '';
   for(const a of albums){
@@ -317,7 +377,24 @@ function escapeHtml(s){return (s+'').replace(/[&<>"']/g,c=>({
 
 async function route(){
   const hash = location.hash || '';
+  // clear last static manifest snapshot when route changes
+  __lastStaticFiles = null;
+  updateNavActive();
   // no board polling to clear (polling removed)
+  // Support explicit intro and albums routes
+  if(hash.startsWith('#/intro')){
+    // 显示独立的介绍页（在 mainView 中），而不是依赖首页的 upload-section
+    setLayoutDetail(true);
+    await showIntro();
+    return;
+  }
+  if(hash.startsWith('#/albums')){
+    // switch to detail layout so homepage upload/album-list are hidden
+    setLayoutDetail(true);
+    // show static album folder view (only files under /album)
+    await showStaticAlbumFolder();
+    return;
+  }
   if(hash.startsWith('#/album/')){
     setLayoutDetail(true);
     const id = Number(hash.split('/')[2]);
@@ -333,6 +410,18 @@ async function route(){
     setLayoutDetail(false);
     showHome();
   }
+}
+
+function updateNavActive(){
+  const hash = location.hash || '';
+  const intro = document.getElementById('nav-intro');
+  const albums = document.getElementById('nav-albums');
+  const board = document.getElementById('nav-board');
+  [intro, albums, board].forEach(el=>{ if(el) el.classList.remove('active'); });
+  if(hash.startsWith('#/albums')){ if(albums) albums.classList.add('active'); }
+  else if(hash.startsWith('#/board')){ if(board) board.classList.add('active'); }
+  else if(hash.startsWith('#/intro')){ if(intro) intro.classList.add('active'); }
+  // when on the homepage (no hash) no nav item should be active
 }
 
 function setLayoutDetail(isDetail){
@@ -352,8 +441,223 @@ function showHome(){
   // 主页不占用 main-view 的空间，由顶部上传框与下方相册网格组成
   // 兜底：无论从哪里进入主页，都确保主页布局可见
   setLayoutDetail(false);
+  // Render a hero illustration in main view so homepage shows the mockup consistently
   mainView.innerHTML = '';
-  // No public gallery on the homepage by default.
+  const hero = document.createElement('div'); hero.className = 'hero';
+  const img = document.createElement('img'); img.className = 'hero-img';
+  // Use explicit relative path to avoid ambiguity
+  img.src = './YB.png';
+  img.alt = 'Welcome to Yellow & Blue';
+  img.onerror = async function(){
+    // If YB.png is missing, try to fall back to the first image from the album manifest or inline manifest
+    try{
+      let first = null;
+      let base = '/album';
+      try{
+        const res = await fetch('/album/manifest.json', {cache:'no-store'});
+        if(res && res.ok){
+          const j = await res.json(); if(Array.isArray(j) && j.length>0) first = j[0];
+        }
+      }catch(e){ /* ignore */ }
+      if(!first){
+        if(window.INLINE_STATIC_MANIFEST && Array.isArray(window.INLINE_STATIC_MANIFEST) && window.INLINE_STATIC_MANIFEST.length>0){
+          first = window.INLINE_STATIC_MANIFEST[0];
+          base = './album';
+        }
+      }
+      if(first){
+        const src = (first.startsWith('/') || first.startsWith('http')) ? first : (base.replace(/\/$/, '') + '/' + first.replace(/^\//, ''));
+        this.onerror = null;
+        this.src = src;
+        return;
+      }
+    }catch(e){ /* ignore */ }
+    this.style.display = 'none';
+  };
+  hero.appendChild(img);
+  const overlay = document.createElement('div'); overlay.className = 'hero-overlay';
+  // Add brand title (CTAs intentionally removed)
+  overlay.innerHTML = `
+    <div class="hero-title">
+      <div class="hero-subtitle">Welcome to</div>
+      <div class="hero-brand"><span class="brand-yellow">Yellow</span> &amp; <span class="brand-blue">Blue</span></div>
+    </div>
+  `;
+  hero.appendChild(overlay);
+  mainView.appendChild(hero);
+
+  // Home content under the hero: guide cards + featured thumbnails
+  const below = document.createElement('div'); below.className = 'home-below';
+  below.innerHTML = `
+    <div class="home-cards" aria-hidden="false">
+      <div class="card home-card" data-href="#/intro">
+        <h3>${t('intro.title')}</h3>
+        <p class="caption">${t('home.card.intro.caption')}</p>
+      </div>
+      <div class="card home-card" data-href="#/albums">
+        <h3>${t('albums.title')}</h3>
+        <p class="caption">${t('home.card.albums.caption')}</p>
+      </div>
+      <div class="card home-card" data-href="#/board">
+        <h3>${t('board.title')}</h3>
+        <p class="caption">${t('home.card.board.caption')}</p>
+      </div>
+    </div>
+    <div class="featured-section">
+      <h3 style="margin:10px 0 8px">${t('featured.title')}</h3>
+      <div class="thumb-scroll" id="featured-thumbs" aria-label="${t('featured.aria')}"></div>
+    </div>
+  `;
+  mainView.appendChild(below);
+
+  // CTAs removed from hero — navigation still available via top nav and cards
+
+  // Make home cards clickable
+  const cards = document.querySelectorAll('.home-card');
+  cards.forEach(c=>{ c.style.cursor='pointer'; c.addEventListener('click', ()=>{ const h = c.dataset.href; if(h) location.hash = h; }); });
+
+  // Render featured thumbnails: prefer static manifest, else fallback to DB previews
+  (async function renderFeatured(){
+    const container = document.getElementById('featured-thumbs');
+    if(!container) return;
+    container.innerHTML = '';
+    // try static manifest first
+    let files = await fetchStaticManifest();
+    if(Array.isArray(files) && files.length>0){
+      const base = (location && location.protocol === 'file:') ? './album' : (getStaticPhotoPath() || './album');
+      const take = files.filter(f=> typeof f === 'string' && /\.(jpe?g|png|gif|webp|bmp|svg)$/i.test(f)).slice(0,10);
+      for(const f of take){
+        const src = (f.startsWith('/') || f.startsWith('http')) ? f : (base.replace(/\/$/, '') + '/' + f.replace(/^\//, ''));
+        const im = document.createElement('img'); im.src = src; im.className='thumb'; im.alt = '';
+        im.addEventListener('click', ()=> openStaticImage(src, f));
+        container.appendChild(im);
+      }
+      if(take.length>0) return;
+    }
+    // fallback: use DB album previews
+    try{
+      const albums = await DB.getAll('albums');
+      const thumbs = [];
+      for(const a of albums){ if(a.previewImageId) thumbs.push(a.previewImageId); if(thumbs.length>=10) break; }
+      for(const id of thumbs){ const rec = await DB.get('images', id); if(!rec) continue; const url = rec.url ? rec.url : (rec.blob ? await blobToDataURL(rec.blob) : null); if(!url) continue; const im = document.createElement('img'); im.src = url; im.className='thumb'; im.alt=''; im.addEventListener('click', ()=> openImageModal(id)); container.appendChild(im); }
+    }catch(e){ /* ignore */ }
+  })();
+}
+
+// 在 mainView 中渲染介绍子界面（独立于首页布局）
+async function showIntro(){
+  mainView.innerHTML = '';
+  const container = document.createElement('div');
+  container.className = 'intro-view';
+  // 在介绍子界面顶部插入“背景”板块，然后显示正文内容
+  container.innerHTML = `
+    <div class="intro-background">
+      <h3 class="intro-subtitle">${t('intro.backgroundTitle')}</h3>
+      <p class="intro-sub-desc">${t('intro.backgroundText')}</p>
+    </div>
+    <div class="intro-names">
+      <h3 class="intro-subtitle">${t('intro.namesTitle')}</h3>
+      <p class="intro-sub-desc">${t('intro.namesText')}</p>
+    </div>
+  `;
+  // （已移除额外简介段落）
+  // Attach a downloadable PDF and provide a modal preview if present in the project root
+  try{
+    const pdfPath = './锅盖的简历.pdf';
+    const encoded = encodeURI(pdfPath);
+    const resumeBlock = document.createElement('div');
+    resumeBlock.className = 'intro-resume';
+    resumeBlock.innerHTML = `
+      <h3 class="intro-resume-title">${t('intro.resumeTitle')}</h3>
+      <p class="intro-resume-desc">${t('intro.resumeDesc')}</p>
+      <p style="margin-top:8px;display:flex;gap:8px;align-items:center">
+        <a class="btn" href="${encoded}" download style="padding:6px 10px">${t('intro.resumeDownload')}</a>
+        <button id="resume-open-modal" class="btn ghost" type="button" style="padding:6px 10px">${t('intro.resumePreview')}</button>
+      </p>
+    `;
+    container.appendChild(resumeBlock);
+
+    // Open PDF in existing modal when the preview link is clicked
+    const openLink = resumeBlock.querySelector('#resume-open-modal');
+    if(openLink){
+      openLink.addEventListener('click', (ev)=>{
+        ev.preventDefault();
+        try{
+          modalBody.innerHTML = '';
+          const obj = document.createElement('object');
+          obj.data = encoded;
+          obj.type = 'application/pdf';
+          obj.className = 'pdf-preview-object';
+          // set a tall height so PDF can use most of the viewport
+          obj.style.width = '100%';
+          obj.style.height = 'calc(100vh - 64px)';
+          obj.innerHTML = t('pdf.unsupported', encoded);
+          modalBody.appendChild(obj);
+          // Add fullscreen class to modal to make it taller and narrower
+          modal.classList.add('modal-fullscreen');
+          modal.classList.remove('hidden'); modal.setAttribute('aria-hidden','false');
+          // ensure modal close clears the preview and removes fullscreen class
+          modalClose.onclick = ()=>{ modal.classList.add('hidden'); modal.setAttribute('aria-hidden','true'); modalBody.innerHTML = ''; modal.classList.remove('modal-fullscreen'); };
+        }catch(err){ console.error('打开简历模态失败', err); }
+      });
+    }
+    // 补充一个“衣服”小节，放置在简历下方作为简介内容的一部分
+    const clothesBlock = document.createElement('div');
+    clothesBlock.className = 'intro-clothes';
+    clothesBlock.innerHTML = `
+      <h3 class="intro-subtitle">${t('intro.clothesTitle')}</h3>
+      <p class="intro-sub-desc">${t('intro.clothesDesc')}</p>
+    `;
+    container.appendChild(clothesBlock);
+    // 静态贴图（贴死）：直接将 Clothing/ 目录下的图片以固定卡片形式展示并带简短介绍
+    try{
+      // 使用与相册相同的 card/gallery 结构来渲染衣服图片，这样外观与相册保持一致
+      const staticGalleryHtml = `
+        <div class="album-view">
+          <div class="gallery" style="margin-top:12px;">
+            <div class="card">
+              <img src="Clothing/09ECAD138FC5644361E4B0232B4F4226.png" alt="09ECAD" />
+              <div class="caption" style="margin-top:8px;text-align:center;font-size:13px;color:#444">${t('clothes.caption.spring')}</div>
+            </div>
+            <div class="card">
+              <img src="Clothing/0B6A555C54ECCA957980AC33D1E4883C.png" alt="0B6A55" />
+              <div class="caption" style="margin-top:8px;text-align:center;font-size:13px;color:#444">${t('clothes.caption.halloween')}</div>
+            </div>
+            <div class="card">
+              <img src="Clothing/2B01A4AEC470B3DF245CA1695D7EAF1F.png" alt="2B01A4" />
+              <div class="caption" style="margin-top:8px;text-align:center;font-size:13px;color:#444">${t('clothes.caption.pajamas')}</div>
+            </div>
+            <div class="card">
+              <img src="Clothing/7E88FED58FFAC7B724ED71A990CEDDF1.png" alt="7E88FE" />
+              <div class="caption" style="margin-top:8px;text-align:center;font-size:13px;color:#444">${t('clothes.caption.baopa')}</div>
+            </div>
+            <div class="card">
+              <img src="Clothing/AE1D304264307A5F112D9CD7D466C72C.png" alt="AE1D30" />
+              <div class="caption" style="margin-top:8px;text-align:center;font-size:13px;color:#444">${t('clothes.caption.christmas')}</div>
+            </div>
+            <div class="card">
+              <img src="Clothing/D02BC0944D68023D151B6ED786C6130D.png" alt="D02BC0" />
+              <div class="caption" style="margin-top:8px;text-align:center;font-size:13px;color:#444">${t('clothes.caption.winter')}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      clothesBlock.innerHTML += staticGalleryHtml;
+      // 为新插入的衣服卡片绑定点击事件以打开模态（与相册一致的行为）
+      try{
+        const imgs = clothesBlock.querySelectorAll('.gallery .card img');
+        imgs.forEach(img=>{
+          img.style.cursor = 'zoom-in';
+          img.onerror = function(){ this.alt = '图片加载失败'; };
+          img.addEventListener('click', ()=>{
+            try{ openStaticImage(img.src, (img.alt || img.getAttribute('data-filename') || '')); }
+            catch(e){ console.error('openStaticImage failed', e); }
+          });
+        });
+      }catch(e){ /* ignore binding errors */ }
+    }catch(e){ /* ignore if DOM unavailable */ }
+  }catch(e){ /* ignore if anything goes wrong */ }
+  mainView.appendChild(container);
 }
 function getBoardEndpoint(){
   if(window.BOARD_ENDPOINT && typeof window.BOARD_ENDPOINT === 'string') return window.BOARD_ENDPOINT;
@@ -373,7 +677,6 @@ async function showAlbum(albumId){
   container.classList.add('album-view');
   container.innerHTML = `
     <div class="page-header">
-      <button id="back-to-home" class="btn ghost" title="${t('back.home')}" aria-label="${t('back.home')}">←</button>
       <h2>${escapeHtml(album.name)}</h2>
       <div class="album-actions">
            <button id="toggle-select" class="btn ghost icon" title="${t('select.toggleOn')}" aria-label="${t('select.toggleOn')}">☑</button>
@@ -438,8 +741,7 @@ async function showAlbum(albumId){
   mainView.innerHTML = '';
   mainView.appendChild(container);
 
-  // 绑定返回与相册操作
-  document.getElementById('back-to-home').addEventListener('click', ()=>{ location.hash = ''; });
+  // 相册操作绑定（返回按钮已移除；点击站点标题可返回主页）
   document.getElementById('rename-album').addEventListener('click', async ()=>{
     const newName = prompt(t('album.rename.prompt'), album.name);
     if(newName && newName.trim()!==album.name){
@@ -552,6 +854,135 @@ async function showAlbum(albumId){
   // 相册页不再显示画师链接，因此无需处理冒泡
 
 }
+
+// ----- 静态相册（static_photos/album）支持 -----
+// 取消轮询：只在进入相册页时一次性加载 manifest，避免持续 setInterval 请求
+let __lastStaticFiles = null;
+
+async function showStaticAlbumFolder(){
+  // 一次性加载静态相册 manifest（不再使用轮询）
+
+  mainView.innerHTML = '';
+  const container = document.createElement('div'); container.className = 'album-view';
+  container.innerHTML = `
+    <div id="albums-intro" class="albums-intro"></div>
+    <div id="static-album-gallery" class="gallery"></div>
+  `;
+  mainView.appendChild(container);
+  const galleryEl = document.getElementById('static-album-gallery');
+  const introEl = document.getElementById('albums-intro');
+  if(introEl) introEl.innerHTML = t('albums.intro');
+
+  // 如果存在内联静态清单（file:// 场景或预先生成的列表），直接将这些文件贴死渲染为卡片，保证在无服务器环境下可见
+  try{
+    if(window.INLINE_STATIC_MANIFEST && Array.isArray(window.INLINE_STATIC_MANIFEST) && window.INLINE_STATIC_MANIFEST.length>0){
+      const base = './album';
+      const files = window.INLINE_STATIC_MANIFEST.filter(f=> typeof f === 'string' && /\.(jpe?g|png|gif|webp|bmp|svg)$/i.test(f));
+      if(files.length>0){
+        galleryEl.innerHTML = '';
+        for(const f of files){
+          const card = document.createElement('div'); card.className = 'card';
+          const img = document.createElement('img');
+          const src = (f.startsWith('/') || f.startsWith('http')) ? f : (base.replace(/\/$/, '') + '/' + f.replace(/^\//, ''));
+          img.src = src;
+          img.onerror = function(){ this.alt = '图片加载失败'; };
+          img.style.cursor = 'zoom-in';
+          img.addEventListener('click', ()=> openStaticImage(src, f));
+          card.appendChild(img);
+          galleryEl.appendChild(card);
+        }
+        // use static inline rendering and skip the rest of manifest loading
+        return;
+      }
+    }
+  }catch(e){ /* ignore and fall back to dynamic loading below */ }
+
+  async function loadAndRender(){
+    // Prefer a manifest at /album/manifest.json so we can serve files from /album
+    let albumFiles = null;
+    let baseUrl = null;
+    try{
+      const res = await fetch('/album/manifest.json', {cache:'no-store'});
+      if(res && res.ok){
+        const j = await res.json();
+        if(Array.isArray(j)){
+          albumFiles = j.map(x=> (typeof x==='string')? x : String(x));
+          baseUrl = '/album';
+        }
+      }
+    }catch(e){ /* ignore */ }
+    if(!albumFiles){
+      const files = await fetchStaticManifest();
+      if(!files) return;
+      // Files from the inline/static manifest may be listed as plain filenames (no folder).
+      // Treat image-like entries as belonging to the `album/` folder when they lack a folder prefix.
+      const isImage = (fname)=> typeof fname === 'string' && /\.(jpe?g|png|gif|webp|bmp|svg)$/i.test(fname);
+      const hasFolderPrefix = (fname)=> typeof fname === 'string' && fname.indexOf('/') !== -1;
+      const plainFiles = files.filter(f=> isImage(f) && !hasFolderPrefix(f));
+      const prefixedFiles = files.filter(f=> isImage(f) && hasFolderPrefix(f));
+      if(prefixedFiles.length>0){
+        // If manifest already contains foldered paths, use them and keep configured static path
+        albumFiles = prefixedFiles.map(x=> String(x));
+        baseUrl = getStaticPhotoPath();
+      } else {
+        // Treat plain filenames as files inside ./album (this works for file:// and simple static servers)
+        albumFiles = plainFiles.map(x=> String(x));
+        baseUrl = './album';
+      }
+    }
+    // Simple change detection to avoid unnecessary re-render
+    const key = JSON.stringify({baseUrl,files:albumFiles});
+    if(key === __lastStaticFiles) return;
+    __lastStaticFiles = key;
+    renderStaticGallery(galleryEl, albumFiles, baseUrl);
+  }
+  // initial load
+  await loadAndRender();
+
+  // 不再轮询；如需刷新可通过刷新页面或重新进入相册路由
+}
+
+function renderStaticGallery(container, files, baseUrl){
+  container.innerHTML = '';
+  if(!files || files.length===0){ container.innerHTML = '<div class="empty">相册为空（album 文件夹）</div>'; return; }
+  baseUrl = baseUrl || getStaticPhotoPath();
+  for(const f of files){
+    const card = document.createElement('div'); card.className='card';
+    const img = document.createElement('img');
+    // If file path already contains folder prefix, avoid double slashes
+    const src = (f.startsWith('/') || f.startsWith('http')) ? f : (baseUrl.replace(/\/$/, '') + '/' + f.replace(/^\//, ''));
+    img.src = src;
+    img.onerror = function(){ this.alt = '图片加载失败'; };
+    // 点击图片放大：打开模态显示大图并支持全屏（对 static 图片）
+    img.style.cursor = 'zoom-in';
+    img.addEventListener('click', ()=>{ openStaticImage(src, f); });
+    card.appendChild(img);
+    container.appendChild(card);
+  }
+}
+
+// 在模态中显示一张静态图片（由 renderStaticGallery 调用）
+function openStaticImage(src, filename){
+  try{
+    modalBody.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = src;
+    img.style.maxWidth = '100%';
+    img.style.maxHeight = '80vh';
+    img.onerror = function(){ this.alt = '图片加载失败'; };
+    // 点击图片尝试全屏，否则在新窗口打开
+    img.addEventListener('click', ()=>{
+      if(img.requestFullscreen) img.requestFullscreen().catch(()=>{ window.open(img.src); });
+      else window.open(img.src);
+    });
+    const caption = document.createElement('div'); caption.className = 'modal-caption'; caption.style.marginTop='8px'; caption.style.color='#666'; caption.textContent = filename || '';
+    modalBody.appendChild(img);
+    modalBody.appendChild(caption);
+    modal.classList.remove('hidden'); modal.setAttribute('aria-hidden','false');
+    modalClose.onclick = ()=>{ modal.classList.add('hidden'); modal.setAttribute('aria-hidden','true'); };
+  }catch(e){ console.error('openStaticImage error', e); }
+}
+
 
 async function openImageModal(imageId){
   const rec = await DB.get('images', imageId);
@@ -725,7 +1156,6 @@ async function showArtist(artistId){
   container.classList.add('artist-view');
   container.innerHTML = `
     <div class="page-header">
-      <button id="back-btn" class="btn ghost" title="${t('back.home')}" aria-label="${t('back.home')}">←</button>
       <h2>${t('label.artist')}: ${escapeHtml(artist.name)}</h2>
       <div class="album-actions">
         <button id="toggle-select" class="btn ghost icon" title="${t('select.toggleOn')}" aria-label="${t('select.toggleOn')}">☑</button>
@@ -778,7 +1208,7 @@ async function showArtist(artistId){
   await buildGallery();
   mainView.innerHTML='';mainView.appendChild(container);
 
-  document.getElementById('back-btn').addEventListener('click', ()=>{ location.hash = ''; });
+  // back button removed for artist view; title returns to home
   // 绑定选择与批量操作
   const toggleBtn = document.getElementById('toggle-select');
   toggleBtn.addEventListener('click', ()=>{
@@ -911,13 +1341,27 @@ function getStaticPhotoPath(){
 }
 
 async function fetchStaticManifest(){
+  // If running from file:// (opened directly), fetch requests for local files are blocked by browser CORS
+  // In that case prefer an inlined manifest provided by `static_manifest.js` (window.INLINE_STATIC_MANIFEST)
+  try{
+    if(location && location.protocol === 'file:'){
+      if(window.INLINE_STATIC_MANIFEST && Array.isArray(window.INLINE_STATIC_MANIFEST)){
+        return window.INLINE_STATIC_MANIFEST.slice();
+      }
+      // otherwise fallthrough to try HTTP fetch which likely will fail under file://
+    }
+  }catch(e){ /* ignore */ }
   const base = getStaticPhotoPath();
   const manifestUrl = base + '/manifest.json';
   try{
     const res = await fetch(manifestUrl, { cache: 'no-store' });
     if(!res.ok) return null;
     const j = await res.json();
-    if(Array.isArray(j.files)) return j.files;
+    // Support two manifest shapes:
+    // 1) { files: [...] } (older format)
+    // 2) [...] (plain array of filenames) — used by repo's album/manifest.json
+    if(Array.isArray(j)) return j.slice();
+    if(j && Array.isArray(j.files)) return j.files.slice();
     return null;
   }catch(e){ return null; }
 }
@@ -940,27 +1384,26 @@ async function showBoard(){
   const container = document.createElement('div'); container.className = 'board-view';
   container.innerHTML = `
     <div class="page-header">
-      <button id="back-to-home-board" class="btn ghost">←</button>
-      <h2>留言板</h2>
+      <h2>${t('board.title')}</h2>
     </div>
     <div class="board-area">
       <div id="board-drop-area" class="drop-area" style="margin-bottom:12px;padding:12px;border:1px dashed #bbb;">
-        <p>把图片拖到这里上传，或点击选择文件（上传的图片会显示到留言板）</p>
+        <p>${t('board.drop.tip')}</p>
         <input id="board-fileElem" type="file" accept="image/*" multiple style="display:none" />
-        <label class="btn ghost" for="board-fileElem">选择文件上传</label>
+        <label class="btn ghost" for="board-fileElem">${t('board.choose')}</label>
       </div>
       <form id="board-form" style="margin-bottom:16px">
-        <div><input id="board-author" placeholder="你的名字（可选）" style="width:100%"></div>
-        <div style="margin-top:8px"><textarea id="board-text" placeholder="写点什么…" style="width:100%" rows="3"></textarea></div>
+        <div><input id="board-author" placeholder="${t('board.author.placeholder')}" style="width:100%"></div>
+        <div style="margin-top:8px"><textarea id="board-text" placeholder="${t('board.text.placeholder')}" style="width:100%" rows="3"></textarea></div>
         <div style="margin-top:8px">
           </div>
-        <div style="text-align:right;margin-top:8px"><button id="board-post" class="btn">发布</button></div>
+        <div style="text-align:right;margin-top:8px"><button id="board-post" class="btn">${t('board.post')}</button></div>
       </form>
       <div id="board-list"></div>
     </div>
   `;
   mainView.appendChild(container);
-  document.getElementById('back-to-home-board').addEventListener('click', ()=>{ location.hash = ''; });
+  // back button removed for board view; title returns to home
 
   // static manifest loaded (not used for board selection anymore)
 
